@@ -1,0 +1,57 @@
+<project name="MarkovDecisionProcess" default="jar" basedir=".">
+  <property name="debuglevel" value="source,lines,vars"/>
+  <property name="target" value="1.8"/>
+  <property name="source" value="1.8"/>
+  <property name="src" location="./src"/>
+  <property name="bin" location="./bin"/>
+  <property name="dist" location="./dist"/>
+  <property name="lib" location="./lib"/>
+  <property name="baselib" location="../baselib"/>
+  <property name="baselibdist" location="${baselib}/dist"/>
+
+ <path id="Mdp.classpath">
+	  <fileset dir="${lib}">
+	    <include name="**/*.jar" />
+	  </fileset>
+  </path>
+	
+ <target name="clean" description="clean up">
+    <delete dir="${bin}"/>
+    <delete dir="${dist}"/>
+  </target>
+	
+  <target name="init" depends="clean">    
+    <mkdir dir="${bin}"/>
+  	<copy includeemptydirs="false" todir="${bin}">
+        <fileset dir="${src}">
+            <exclude name="**/*.java"/>
+        </fileset>
+  	</copy>
+  </target>
+
+  <target name="compile" depends="init" description="compile the source">
+  	<echo message="${ant.project.name}: ${ant.file}"/>
+    <javac includeantruntime="false" debug="true" debuglevel="${debuglevel}" destdir="${bin}" source="${source}" target="${target}" classpathref="Mdp.classpath">
+        <src path="${src}"/>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile" description="generate the distribution">
+  	<jar destfile="${dist}/mdp.jar">
+	  	<manifest>
+	        <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+	        <attribute name="Rsrc-Main-Class" value="mdp.Main"/>
+	        <attribute name="Class-Path" value="."/>
+	        <attribute name="Rsrc-Class-Path" value="./ mysql-connector-java-5.1.18-bin.jar baselib.jar"/>
+	    </manifest>
+	  	<zipfileset src="${lib}/jar-in-jar-loader.zip"/>
+	    <fileset dir="${bin}"/>
+	    <zipfileset dir="${lib}" includes="mysql-connector-java-5.1.18-bin.jar"/>
+  		<zipfileset dir="${lib}" includes="baselib.jar"/>
+  	</jar>
+  	 <copy file="config.properties" todir="${dist}"/>
+  	 <copy file="README.txt" todir="${dist}"/>
+  </target>
+
+  
+</project>
